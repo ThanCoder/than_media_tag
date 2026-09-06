@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  media_reader:
+  than_media_tag:
     # When depending on this package from a real application you should use:
     #   media_reader: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints

@@ -1,0 +1,269 @@
+make distclean
+
+CFLAGS="-Os -ffunction-sections -fdata-sections" \
+LDFLAGS="-Wl,--gc-sections" \
+./configure \
+  --prefix="$PWD/build" \
+  --enable-pic \
+  --disable-shared \
+  --enable-static \
+  --disable-everything \
+  --disable-programs \
+  --disable-doc \
+  --disable-debug \
+  --disable-network \
+  --disable-autodetect \
+  --disable-avdevice \
+  --disable-avfilter \
+  --disable-swresample \
+  --disable-swscale \
+  --disable-bsfs \
+  --disable-decoders \
+  --disable-encoders \
+  --disable-hwaccels \
+  --disable-parsers \
+  --enable-avutil \
+  --enable-avcodec \
+  --enable-avformat \
+  --enable-protocol=file \
+  --enable-parser=mpegaudio \
+  --enable-parser=flac \
+  --enable-demuxer=mov \
+  --enable-demuxer=matroska \
+  --enable-demuxer=ogg \
+  --enable-demuxer=mp3 \
+  --enable-demuxer=flac \
+  --enable-demuxer=wav \
+  --enable-muxer=mov \
+  --enable-muxer=matroska \
+  --enable-muxer=ogg \
+  --enable-muxer=mp3 \
+  --enable-muxer=flac \
+  --enable-muxer=wav
+
+make -j$(nproc)
+make install
+
+ls -lh build/lib/*.a
+
+cd build/lib
+
+gcc -shared \
+  -Wl,-soname,libthan_media_tag.so \
+  -Wl,-Bsymbolic \
+  -Wl,--whole-archive \
+  libavformat.a \
+  libavcodec.a \
+  libavutil.a \
+  -Wl,--no-whole-archive \
+  -lm \
+  -lpthread \
+  -ldl \
+  -o libthan_media_tag.so
+
+
+strip --strip-unneeded libthan_media_tag.so
+
+
+ls -lh libthan_media_tag.so
+
+
+nm -D --defined-only libthan_media_tag.so | grep avformat_open_input
+
+
+## size ထပ်လျော့ချင်ရင်
+
+gcc -shared \
+  -Wl,-soname,libthan_media_tag.so \
+  -Wl,-Bsymbolic \
+  -Wl,--gc-sections \
+  -Wl,--undefined=avformat_open_input \
+  -Wl,--undefined=avformat_find_stream_info \
+  -Wl,--undefined=avformat_close_input \
+  -Wl,--undefined=avformat_alloc_output_context2 \
+  -Wl,--undefined=avformat_write_header \
+  -Wl,--undefined=av_write_trailer \
+  -Wl,--undefined=av_dict_get \
+  -Wl,--undefined=av_dict_set \
+  -Wl,--undefined=av_dict_free \
+  libavformat.a \
+  libavcodec.a \
+  libavutil.a \
+  -lm \
+  -lpthread \
+  -ldl \
+  -o libthan_media_tag.so
+
+
+strip --strip-unneeded libthan_media_tag.so
+
+
+ls -lh libthan_media_tag.so
+
+
+nm -D --defined-only libthan_media_tag.so | grep avformat_open_input
+
+
+## Android -> android-arm64
+
+cd ~/Documents/ffmpeg-9.0.1
+
+make distclean
+
+export NDK="$ANDROID_NDK_HOME"
+export API=24
+export TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64"
+
+./configure \
+  --prefix="$PWD/build/android-arm64" \
+  --target-os=android \
+  --arch=aarch64 \
+  --cpu=armv8-a \
+  --cc="$TOOLCHAIN/bin/aarch64-linux-android${API}-clang" \
+  --cxx="$TOOLCHAIN/bin/aarch64-linux-android${API}-clang++" \
+  --ar="$TOOLCHAIN/bin/llvm-ar" \
+  --ranlib="$TOOLCHAIN/bin/llvm-ranlib" \
+  --strip="$TOOLCHAIN/bin/llvm-strip" \
+  --nm="$TOOLCHAIN/bin/llvm-nm" \
+  --enable-cross-compile \
+  --enable-pic \
+  --disable-shared \
+  --enable-static \
+  --disable-programs \
+  --disable-doc \
+  --disable-debug \
+  --disable-network \
+  --disable-iconv \
+  --disable-avdevice \
+  --disable-avfilter \
+  --disable-swscale \
+  --disable-swresample \
+  --disable-decoders \
+  --disable-encoders \
+  --disable-hwaccels \
+  --disable-parsers \
+  --disable-bsfs \
+  --disable-demuxers \
+  --disable-muxers \
+  --disable-protocols \
+  --enable-demuxer=flac \
+  --enable-demuxer=mov \
+  --enable-demuxer=ogg \
+  --enable-demuxer=matroska \
+  --enable-demuxer=mp3 \
+  --enable-demuxer=wav \
+  --enable-muxer=flac \
+  --enable-muxer=mov \
+  --enable-muxer=ogg \
+  --enable-muxer=matroska \
+  --enable-muxer=mp3 \
+  --enable-muxer=wav \
+  --enable-protocol=file \
+  --enable-parser=flac \
+  --enable-parser=mpegaudio \
+  --optflags="-Os" \
+  --extra-cflags="-ffunction-sections -fdata-sections" \
+  --extra-ldflags="-Wl,--gc-sections"
+
+make -j$(nproc)
+make install
+
+cd build/android-arm64/lib
+
+$TOOLCHAIN/bin/aarch64-linux-android${API}-clang \
+  -shared \
+  -Wl,-soname,libthan_media_tag.so \
+  -Wl,-Bsymbolic \
+  -Wl,--whole-archive \
+  libavformat.a \
+  libavcodec.a \
+  libavutil.a \
+  -Wl,--no-whole-archive \
+  -lz \
+  -lm \
+  -o libthan_media_tag.so
+
+$TOOLCHAIN/bin/llvm-strip --strip-unneeded libthan_media_tag.so
+
+
+## Android ->  android-arm
+
+cd ~/Documents/ffmpeg-9.0.1
+
+make distclean
+
+export NDK="$ANDROID_NDK_HOME"
+export API=24
+export TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64"
+
+./configure \
+  --prefix="$PWD/build/android-arm" \
+  --target-os=android \
+  --arch=arm \
+  --cpu=armv7-a \
+  --cc="$TOOLCHAIN/bin/armv7a-linux-androideabi${API}-clang" \
+  --cxx="$TOOLCHAIN/bin/armv7a-linux-androideabi${API}-clang++" \
+  --ar="$TOOLCHAIN/bin/llvm-ar" \
+  --ranlib="$TOOLCHAIN/bin/llvm-ranlib" \
+  --strip="$TOOLCHAIN/bin/llvm-strip" \
+  --nm="$TOOLCHAIN/bin/llvm-nm" \
+  --enable-cross-compile \
+  --enable-pic \
+  --disable-shared \
+  --enable-static \
+  --disable-programs \
+  --disable-doc \
+  --disable-debug \
+  --disable-network \
+  --disable-iconv \
+  --disable-avdevice \
+  --disable-avfilter \
+  --disable-swscale \
+  --disable-swresample \
+  --disable-decoders \
+  --disable-encoders \
+  --disable-hwaccels \
+  --disable-parsers \
+  --disable-bsfs \
+  --disable-demuxers \
+  --disable-muxers \
+  --disable-protocols \
+  --enable-demuxer=flac \
+  --enable-demuxer=mov \
+  --enable-demuxer=ogg \
+  --enable-demuxer=matroska \
+  --enable-demuxer=mp3 \
+  --enable-demuxer=wav \
+  --enable-muxer=flac \
+  --enable-muxer=mov \
+  --enable-muxer=ogg \
+  --enable-muxer=matroska \
+  --enable-muxer=mp3 \
+  --enable-muxer=wav \
+  --enable-protocol=file \
+  --enable-parser=flac \
+  --enable-parser=mpegaudio \
+  --optflags="-Os" \
+  --extra-cflags="-ffunction-sections -fdata-sections" \
+  --extra-ldflags="-Wl,--gc-sections"
+
+make -j$(nproc)
+make install
+
+
+cd build/android-arm/lib
+
+$TOOLCHAIN/bin/armv7a-linux-androideabi${API}-clang \
+  -shared \
+  -Wl,-soname,libthan_media_tag.so \
+  -Wl,-Bsymbolic \
+  -Wl,--whole-archive \
+  libavformat.a \
+  libavcodec.a \
+  libavutil.a \
+  -Wl,--no-whole-archive \
+  -lz \
+  -lm \
+  -o libthan_media_tag.so
+
+$TOOLCHAIN/bin/llvm-strip --strip-unneeded libthan_media_tag.so
