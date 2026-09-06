@@ -1,0 +1,21 @@
+# Run with `dart run ffigen --config ffigen.yaml`.
+name: MediaReaderBindings
+description: |
+  Bindings for `src/than_media_tag.h`.
+
+  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
+output: 'lib/than_media_tag_bindings_generated.dart'
+headers:
+  entry-points:
+  - 'src/include/libavcodec/avcodec.h'
+  - 'src/include/libavformat/avformat.h'
+  - 'src/include/libavutil/avutil.h'
+  include-directives:
+  - 'src/include/libavcodec/*.h'
+  - 'src/include/libavformat/*.h'
+  - 'src/include/libavutil/*.h'
+# ffi-native:
+comments:
+  style: any
+  length: full
+ignore-source-errors: true
