@@ -10,12 +10,17 @@ headers:
   - 'src/include/libavcodec/avcodec.h'
   - 'src/include/libavformat/avformat.h'
   - 'src/include/libavutil/avutil.h'
+  - 'src/include/libswscale/swscale.h'
   include-directives:
   - 'src/include/libavcodec/*.h'
   - 'src/include/libavformat/*.h'
   - 'src/include/libavutil/*.h'
+  - 'src/include/libswscale/*.h'
+
 # ffi-native:
 comments:
   style: any
   length: full
-ignore-source-errors: true
+compiler-opts:
+  - "-I/home/thancoder/projects/dart_plugins/than_media_tag/src/include"
+# ignore-source-errors: true

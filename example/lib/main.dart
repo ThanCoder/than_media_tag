@@ -13,14 +13,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String text = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: const Placeholder(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(child: Text(text)),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showVersionInfo();
+          text = getVersionInfo().toString();
+          setState(() {});
         },
       ),
     );

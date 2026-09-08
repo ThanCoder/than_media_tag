@@ -1,0 +1,75 @@
+make distclean
+
+CFLAGS="-Os -ffunction-sections -fdata-sections" \
+LDFLAGS="-Wl,--gc-sections" \
+./configure \
+  --prefix="$PWD/build" \
+  --enable-pic \
+  --disable-shared \
+  --enable-static \
+  \
+  --disable-everything \
+  --disable-programs \
+  --disable-doc \
+  --disable-debug \
+  --disable-network \
+  --disable-autodetect \
+  \
+  --disable-avdevice \
+  --disable-avfilter \
+  --disable-swresample \
+  --disable-bsfs \
+  --disable-encoders \
+  --disable-hwaccels \
+  \
+  --enable-avutil \
+  --enable-avcodec \
+  --enable-avformat \
+  --enable-swscale \
+  \
+  --enable-protocol=file \
+  \
+  --enable-demuxer=mov \
+  --enable-demuxer=matroska \
+  --enable-demuxer=ogg \
+  --enable-demuxer=mp3 \
+  --enable-demuxer=flac \
+  --enable-demuxer=wav \
+  \
+  --enable-parser=mpegaudio \
+  --enable-parser=flac \
+  --enable-parser=h264 \
+  \
+  --enable-decoder=h264
+
+
+
+make -j$(nproc)
+make install
+
+ls -lh build/lib/*.a
+
+cd build/lib
+
+gcc -shared \
+  -Wl,-soname,libthan_media_tag.so \
+  -Wl,-Bsymbolic \
+  -Wl,--whole-archive \
+  libavformat.a \
+  libavcodec.a \
+  libavutil.a \
+  libswscale.a\
+  -Wl,--no-whole-archive \
+  -lm \
+  -lpthread \
+  -ldl \
+  -o libthan_media_tag.so
+
+
+strip --strip-unneeded libthan_media_tag.so
+
+
+ls -lh libthan_media_tag.so
+
+
+nm -D --defined-only libthan_media_tag.so | grep avformat_open_input

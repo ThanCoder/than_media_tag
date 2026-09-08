@@ -12,7 +12,7 @@ void main(List<String> args) async {
     final targetArchitecture = input.config.code.targetArchitecture;
     final libName = 'libthan_media_tag.so';
     final sourceLib =
-        '/home/thancoder/Downloads/ffmpeg-9.0.1-media-reader-native-so';
+        '/home/thancoder/Downloads/ffmpeg-9.0.1-than-media-tag-native-so';
     late File libFile;
     if (targetOS == .linux) {
       libFile = File(sourceLib.join('linux').join(libName));
