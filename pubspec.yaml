@@ -8,6 +8,7 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  archive: ^4.3.0
   code_assets: ^1.1.0
   ffi: ^2.2.0
   hooks: ^2.0.0

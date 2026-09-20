@@ -4,6 +4,7 @@ sealed class AvFormatBase {
   Pointer<Pointer<AVFormatContext>> _fmtCtx = nullptr;
   Pointer<AVFormatContext> get context => _fmtCtx.value;
 
+
   Result<bool, String> open(String path) {
     try {
       _fmtCtx = calloc<Pointer<AVFormatContext>>();
@@ -55,6 +56,8 @@ sealed class AvFormatBase {
   Pointer<AVStream> _videoStream = nullptr;
   Pointer<AVStream> _attachedPicStream = nullptr;
   Pointer<AVStream> _subtitleStream = nullptr;
+
+  /// need to call -> `fmt.loadInfo()`
   List<MediaStreamInfo> infoList = [];
 
   Result<bool, String> _readStreams() {
@@ -93,6 +96,7 @@ sealed class AvFormatBase {
 
   Result<bool, String> loadInfo();
 
+  /// Free Memory
   void close() {
     if (_fmtCtx != nullptr) {
       lib.avformat_close_input(_fmtCtx);

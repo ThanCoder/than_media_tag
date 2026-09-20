@@ -17,6 +17,11 @@ part '../models/audio_tag.dart';
 final lib = getMediaReader();
 
 class AvFormat extends AvFormatBase {
+  /// video decoder
+  AvDecoder get toDecoder {
+    return .new(this);
+  }
+
   @override
   Result<bool, String> loadInfo() {
     try {
