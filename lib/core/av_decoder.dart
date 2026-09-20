@@ -209,6 +209,10 @@ class AvDecoder {
     final dstWidth = outputSize.width;
     final dstHeight = outputSize.height;
 
+    if (dstWidth <= 0 || dstHeight <= 0) {
+      return Err('invalid output size: ${dstWidth}x$dstHeight');
+    }
+
     final srcFormat = frame.ref.format;
 
     final swsCtx = lib.sws_getContext(
@@ -229,60 +233,35 @@ class AvDecoder {
     }
 
     final bufferSize = dstWidth * dstHeight * 4;
+
     final buffer = calloc<Uint8>(bufferSize);
-
-    //
-    // Temporary native arrays.
-    //
-    final srcData = calloc<Pointer<Uint8>>(8);
-    final srcLinesize = calloc<Int>(8);
-
     final dstData = calloc<Pointer<Uint8>>(4);
     final dstLinesize = calloc<Int>(4);
 
     try {
-      //
-      // AVFrame.data -> native pointer array
-      //
-      for (var i = 0; i < 8; i++) {
-        srcData[i] = frame.ref.data.elements[i];
-        srcLinesize[i] = frame.ref.linesize.elements[i];
-      }
-
-      //
-      // RGBA destination.
-      //
       dstData[0] = buffer;
       dstLinesize[0] = dstWidth * 4;
 
-      final scaledHeight = lib.sws_scale(
+      final result = lib.sws_scale(
         swsCtx,
-        srcData,
-        srcLinesize,
+        frame.ref.data,
+        frame.ref.linesize,
         0,
         srcHeight,
         dstData,
         dstLinesize,
       );
 
-      if (scaledHeight != dstHeight) {
-        return Err(
-          'sws_scale failed: '
-          '$scaledHeight != $dstHeight',
-        );
+      if (result != dstHeight) {
+        return Err('sws_scale failed: $result != $dstHeight');
       }
 
-      //
-      // Copy native buffer to Dart memory.
-      //
       return Ok(Uint8List.fromList(buffer.asTypedList(bufferSize)));
     } catch (e) {
       return Err('frame conversion failed: $e');
     } finally {
       calloc.free(dstLinesize);
       calloc.free(dstData);
-      calloc.free(srcLinesize);
-      calloc.free(srcData);
       calloc.free(buffer);
 
       lib.sws_freeContext(swsCtx);
