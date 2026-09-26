@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:than_media_tag/core/av_format.dart';
 
-abstract class MediaStreamInfo {
+sealed class MediaStreamInfo {
   final int codecId;
   final String codecName;
   final Duration duration;
@@ -23,9 +23,16 @@ abstract class MediaStreamInfo {
     return '${kbps.round()} kb/s';
   }
 
-  @override
-  String toString() {
-    return 'MediaStreamInfo(codecId: $codecId, codecName: $codecName, duration: $duration, bitrate: $bitrate, format: $format, streamDuration: $streamDuration)';
+  bool get isAudioInfo => this is AudioStreamInfo;
+  bool get isVideoInfo => this is VideoStreamInfo;
+  bool get isSubtitleInfo => this is SubtitleStreamInfo;
+
+  /// Check
+  /// 
+  /// `stm.isAudioInfo`
+  AudioStreamInfo get audioInfo {
+    if (this is AudioStreamInfo) return this as AudioStreamInfo;
+    throw StateError('$this Not Found!');
   }
 }
 

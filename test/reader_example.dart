@@ -21,6 +21,7 @@ void genThumb(String path) {
   final fmtRes = fmt.open(path);
 
   if (fmtRes.isErr) {
+    print('[Error: $path]: ${fmtRes.unwrapError()}');
     return;
   }
 
@@ -29,6 +30,9 @@ void genThumb(String path) {
   if (genRes.isOk) {
     final bytes = genRes.unwrap();
     print('thumb: ${bytes.length}');
+  }
+  if (genRes.isErr) {
+    print('[gen Error:] ${genRes.unwrapError()} -> $path');
   }
 
   fmt.close();

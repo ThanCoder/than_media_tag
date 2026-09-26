@@ -12,11 +12,12 @@ import 'package:image/image.dart' as img;
 
 part 'av_format_base.dart';
 part 'av_decoder.dart';
+part 'audio_pic_logic.dart';
 part '../models/audio_tag.dart';
 
 final lib = getMediaReader();
 
-class AvFormat extends AvFormatBase {
+class AvFormat extends AvFormatBase with AudioPicLogic {
   /// video decoder
   AvDecoder get toDecoder {
     return .new(this);
@@ -108,71 +109,3 @@ class AvFormat extends AvFormatBase {
     );
   }
 }
-
-/*
-final codecId = codecpar.ref.codec_id.value;
-        final strDuration = stream.ref.duration;
-        final codecNameValue = _codecName(codecpar.ref.codec_id);
-
-        final duration = streamDuration(stream);
-
-        if (type == .AVMEDIA_TYPE_VIDEO) {
-          final audioAttachedPictureExists =
-              (stream.ref.disposition & AV_DISPOSITION_ATTACHED_PIC) != 0;
-          //audioAttachedPictureStream
-          if (audioAttachedPictureExists) {
-            _attachedPicStream = stream;
-          } else {
-            // actual video
-            final width = codecpar.ref.width;
-            final height = codecpar.ref.height;
-
-            final fps = rationalToDouble(stream.ref.avg_frame_rate);
-
-            infoList.add(
-              VideoStreamInfo(
-                codecName: codecNameValue,
-                codecId: codecId,
-                duration: duration,
-                streamDuration: strDuration,
-                bitrate: codecpar.ref.bit_rate,
-                format: codecpar.ref.format,
-                width: width,
-                height: height,
-                fps: fps,
-              ),
-            );
-          }
-        }
-
-        if (type == .AVMEDIA_TYPE_AUDIO) {
-          infoList.add(
-            AudioStreamInfo(
-              codecId: codecId,
-              codecName: codecNameValue,
-              duration: duration,
-              streamDuration: strDuration,
-              bitrate: codecpar.ref.bit_rate,
-              format: codecpar.ref.format,
-              sampleRate: codecpar.ref.sample_rate,
-              channels: codecpar.ref.ch_layout.nb_channels,
-              tag: _readTag(),
-            ),
-          );
-        }
-
-        if (type == .AVMEDIA_TYPE_SUBTITLE) {
-          final language = getMetadata(stream.ref.metadata, 'language');
-          infoList.add(
-            SubtitleStreamInfo(
-              codecId: codecId,
-              codecName: codecNameValue,
-              duration: duration,
-              streamDuration: strDuration,
-              bitrate: codecpar.ref.bit_rate,
-              format: codecpar.ref.format,
-              language: language,
-            ),
-          );
-        }
-*/

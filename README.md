@@ -1,5 +1,18 @@
 # than_media_tag
 
+### Example
+```dart
+for (var f in dir.listSync()) {
+    if (f is! File) continue;
+    // genThumb(f.path);
+    final res = await MediaTagWorker.instance.getVideoThumbnail(f.path);
+    if (res.isOk) {
+      list.add(.new(title: f.name, data: res.unwrap(), duration: .zero));
+    }
+  }
+```
+
+### Low Level
 ```dart
 final path = '/home/thancoder/Videos/It Hunts (2026).mp4';
   final fmt = AvFormat();

@@ -1,10 +1,12 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: avoid_print, unused_local_variable
 
 import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:code_assets/code_assets.dart';
 import 'package:hooks/hooks.dart';
+import 'package:logging/logging.dart';
+import 'package:native_toolchain_c/native_toolchain_c.dart';
 
 const String linuxLibUrl =
     'https://github.com/ThanCoder/than_media_tag/releases/download/native.so.lib/ffmpeg-9.0.1-linux-than-media-tag.zip';
@@ -18,6 +20,8 @@ void main(List<String> args) async {
     final packageName = input.packageName;
     final targetOS = input.config.code.targetOS;
     final targetArchitecture = input.config.code.targetArchitecture;
+
+    //**********Lib So***************** */
     final libName = 'libthan_media_tag.so';
     final sourceLib = input.packageRoot.path
         .join('.dart_tool')
@@ -38,6 +42,31 @@ void main(List<String> args) async {
         file: libFile.uri,
       ),
     );
+
+    //**********Native C***************** */
+    final cbuilder = CBuilder.library(
+      name: '${packageName}_wrapper',
+      assetName: '${packageName}_wrapper',
+      sources: ['src/than_media_tag.c'],
+      includes: [
+        'src',
+        'src/include',
+        'src/include/libavcodec',
+        'src/include/libavformat',
+        'src/include/libavutil',
+        'src/include/libswscale',
+      ],
+      libraries: ['than_media_tag'],
+      libraryDirectories: [libFile.parent.path],
+    );
+    await cbuilder.run(
+      input: input,
+      output: output,
+      logger: Logger('')
+        ..level = .ALL
+        ..onRecord.listen((record) => print(record.message)),
+    );
+    //**********Native C***************** */
   });
 }
 
@@ -56,33 +85,44 @@ Future<File> extraceLibSo(
   if (targetOS == .linux) {
     final libFile = File(sourceLib.join(targetOS.name).join(libName));
     if (libFile.existsSync()) return libFile;
-    final sourceZipFile = File(sourceLib.join('linux').join('linux.zip'));
-    if (!sourceZipFile.existsSync()) {
-      await downloadLib(linuxLibUrl, sourceZipFile);
+    final sourceZipFile = File(sourceLib.join(targetOS.name).join('linux.zip'));
+    // zip ရှိရင်
+    if (sourceZipFile.existsSync()) {
+      await extractZip(sourceZipFile, libFile);
+      return libFile;
     }
 
+    await downloadLib(linuxLibUrl, sourceZipFile);
     await extractZip(sourceZipFile, libFile);
     return libFile;
   }
-  if (Platform.isAndroid) {
+  // android
+  if (targetOS == .android) {
+    final androidLibPath = sourceLib.join(targetOS.name);
     final libFile = File(
-      sourceLib.join(targetOS.name).join(targetArchitecture.name).join(libName),
+      androidLibPath.join(targetArchitecture.name).join(libName),
     );
     if (libFile.existsSync()) return libFile;
 
+    // မရှိရင်
     if (targetArchitecture == .arm) {
-      final sourceZipFile = File(sourceLib.join('android').join('arm.zip'));
-      if (!sourceZipFile.existsSync()) {
-        await downloadLib(androidArmLibUr, sourceZipFile);
+      final sourceZipFile = File(androidLibPath.join('arm.zip'));
+      if (sourceZipFile.existsSync()) {
+        await extractZip(sourceZipFile, libFile);
+        return libFile;
       }
+      await downloadLib(androidArmLibUr, sourceZipFile);
       await extractZip(sourceZipFile, libFile);
     }
 
     if (targetArchitecture == .arm64) {
-      final sourceZipFile = File(sourceLib.join('android').join('arm64.zip'));
-      if (!sourceZipFile.existsSync()) {
-        await downloadLib(androidArm64LibUr, sourceZipFile);
+      final sourceZipFile = File(androidLibPath.join('arm64.zip'));
+
+      if (sourceZipFile.existsSync()) {
+        await extractZip(sourceZipFile, libFile);
+        return libFile;
       }
+      await downloadLib(androidArm64LibUr, sourceZipFile);
       await extractZip(sourceZipFile, libFile);
     }
 

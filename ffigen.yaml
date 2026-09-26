@@ -11,11 +11,13 @@ headers:
   - 'src/include/libavformat/avformat.h'
   - 'src/include/libavutil/avutil.h'
   - 'src/include/libswscale/swscale.h'
+  - 'src/than_media_tag.h'
   include-directives:
   - 'src/include/libavcodec/*.h'
   - 'src/include/libavformat/*.h'
   - 'src/include/libavutil/*.h'
   - 'src/include/libswscale/*.h'
+  - 'src/*.h'
 
 # ffi-native:
 comments:

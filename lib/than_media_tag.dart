@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:than_media_tag/than_media_tag_bindings_generated.dart';
 
+export 'worker/media_tag_worker.dart';
+
 /// ```dart
 /// final lib = getMediaReader(libName: '[custom path]');
 /// ```
@@ -10,11 +12,11 @@ MediaReaderBindings getMediaReader({String? libName}) {
   if (libName != null) {
     return MediaReaderBindings(.open(libName));
   }
-  // final lib = DynamicLibrary.open('libthan_media_tag.so');
+  final lib = DynamicLibrary.open('libthan_media_tag_wrapper.so');
   // dev
-  final lib = DynamicLibrary.open(
-    '/home/thancoder/Downloads/ffmpeg-9.0.1-than-media-tag-native-so/linux/libthan_media_tag.so',
-  );
+  // final lib = DynamicLibrary.open(
+  //   '/home/thancoder/Documents/ffmpeg-9.0.1-than-media-tag-native-so/libthan_media_tag.so',
+  // );
 
   return MediaReaderBindings(lib);
 }
